@@ -1,6 +1,8 @@
 # ChatRF-scraper112
 Αυτό είναι ένα απλό Twitter/X scraper που χρησιμοποιεί το selenium για να λάβει τα νέα μηνύματα που ανεβάζει η υπηρεσία του 112 στην Ελλάδα. Είναι φτιαγμένο για χρήση με το AI-enhanced repeater project μου, το [ChatRF](https://github.com/zisispolychronidis/ChatRF).
 
+Για την εγκατάσταση, φτιάξε έναν φάκελο `modules` στη διαδρομή που είναι μέσα το ChatRF, μπες στον φάκελο και κάνε `git clone https://github.com/zisispolychronidis/ChatRF-scraper112.git`
+
 Για τη πρώτη χρήση, τρέξ' το κανονικά με `python scraper112.py`
 Θα ανοίξει το chrome και θα ζητήσει log in για το Twitter, μη φοβάσαι, όλα αποθηκεύονται ΜΟΝΟ τοπικά. Μόλις κάνεις log in πάτα το Enter στο console/terminal.
 
