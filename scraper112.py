@@ -13,44 +13,28 @@ from webdriver_manager.chrome import ChromeDriverManager
 import logging
 import sys
 
-# ANSI colors
-class LogColors:
-    RESET = "\033[0m"
-    GRAY = "\033[90m"
-    RED = "\033[91m"
-    GREEN = "\033[92m"
-    YELLOW = "\033[93m"
-    BLUE = "\033[94m"
-    CYAN = "\033[96m"
-
-class ColorFormatter(logging.Formatter):
-    LEVEL_COLORS = {
-        logging.DEBUG: LogColors.GRAY,
-        logging.INFO: LogColors.BLUE,
-        logging.WARNING: LogColors.YELLOW,
-        logging.ERROR: LogColors.RED,
-        logging.CRITICAL: LogColors.RED,
-    }
-
-    def format(self, record):
-        level_color = self.LEVEL_COLORS.get(record.levelno, LogColors.RESET)
-        message = super().format(record)
-        return f"{level_color}{message}{LogColors.RESET}"
-
 def setup_logger():
-    logger = logging.getLogger()
+    # Create a named logger instead of root logger
+    logger = logging.getLogger('twitter_scraper_112')
     logger.setLevel(logging.INFO)
+    
+    # Prevent propagation to root logger
+    logger.propagate = False
 
     handler = logging.StreamHandler(sys.stdout)
     handler.setLevel(logging.DEBUG)
 
-    formatter = ColorFormatter(
+    formatter = logging.Formatter(
         "[%(asctime)s] %(levelname)s – %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"
     )
 
     handler.setFormatter(formatter)
-    logger.handlers.clear()
+    
+    # Only clear handlers if they exist
+    if logger.handlers:
+        logger.handlers.clear()
+    
     logger.addHandler(handler)
 
     return logger
@@ -70,13 +54,11 @@ URL_SHORT_RE = re.compile(
     re.IGNORECASE
 )
 
-# Αφαίρεση hashtags (#word) και απλό "tagging" όπως " #Πυρκαγιά"
-HASHTAG_RE = re.compile(r'#\S+', re.UNICODE)
-
 # Mentions @username
 MENTION_RE = re.compile(r'@\S+', re.UNICODE)
 
-# Emojis
+HASHTAG_SYMBOL_RE = re.compile(r'#')
+MULTISPACE_RE = re.compile(r'\s+')
 EMOJI_RE = re.compile(
     "[" 
     "\U0001F300-\U0001F5FF"
@@ -84,12 +66,9 @@ EMOJI_RE = re.compile(
     "\U0001F680-\U0001F6FF"
     "\U00002600-\U000026FF"
     "\U00002700-\U000027BF"
-    "]+",
-    re.UNICODE
-)
+    "]+", flags=re.UNICODE)
 
 TRUNCATE_MARKERS = ['Προσοχή', '‼', '⚠', '🔴']
-
 
 def extract_core_message(raw_text):
     """Παίρνει raw tweet text και επιστρέφει καθαρό core message."""
@@ -107,9 +86,10 @@ def extract_core_message(raw_text):
     # ΑΦΑΙΡΕΣΕ ΤΑ ΠΑΝΤΑ
     text = URL_FULL_RE.sub('', text)
     text = URL_SHORT_RE.sub('', text)
-    text = HASHTAG_RE.sub('', text)
     text = MENTION_RE.sub('', text)
     text = EMOJI_RE.sub('', text)
+    text = HASHTAG_SYMBOL_RE.sub("", text)
+    text = MULTISPACE_RE.sub(" ", text).strip()
 
     lines = [ln.strip() for ln in re.split(r'[\r\n]+', text) if ln.strip()]
     core_lines = []
