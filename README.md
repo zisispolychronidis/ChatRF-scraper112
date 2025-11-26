@@ -12,24 +12,24 @@ from modules.scraper112 import run_loop # 112 Scraper Module
 ```
 στο πάνω μέρος του repeater.py, το code block:
 ```
-def handle_112_alert(msg):
+def handle_112_alert(self, msg):
     # msg είναι dict: {"id":..., "date":..., "core_message":...}
     logger.info(f"Νέο μήνυμα 112: {msg['core_message']}")
     
     # Αν ο repeater μιλάει, περίμενε να τελειώσει
-    while repeater.talking:
+    while self.talking:
         time.sleep(1)
 
     # Πες το μήνυμα
-    repeater.speak_with_piper(f"Προειδοποίηση από το εκατόν δώδεκα. {msg['core_message']}")
+    self.speak_with_piper(f"Προειδοποίηση από το εκατόν δώδεκα. {msg['core_message']}")
 
-def start_112_scraper():
+def start_112_scraper(self):
     run_loop(handle_112_alert, interval=600)
 ```
-ακριβώς πάνω από το def main(), αλλά χωρίς εσοχή για να μη μπει στο HamRepeater class, και τέλος, τις δύο σειρές:
+μέσα στο HamRepeater class, και τέλος, τις δύο σειρές:
 ```
 # Ξεκινά ο thread του scraper
-    scraper_thread = threading.Thread(target=start_112_scraper, daemon=True)
+    scraper_thread = threading.Thread(target=self.start_112_scraper, daemon=True)
     scraper_thread.start()
 ```
-μέσα στο main() πάνω από το `PTT via Raspberry Pi GPIO`.
+μέσα στο run_repeater() κάτω από το `logger.info("Ham repeater running...")`.
